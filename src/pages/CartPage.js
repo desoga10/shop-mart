@@ -17,7 +17,7 @@ const CartPage = ({ match, location, history }) => {
   ), ([name, qty]) => ({ name, qty }));
   console.log(beanQty);
   const totalBeansQty = beanQty.find(beans => beans.name === "Tin of beans") || 0
-  console.log(totalBeansQty.qty);
+  console.log(totalBeansQty.qty || 0);
 
   //Total Cola Quantity
   const colaQty = Array.from(basketItems.reduce(
@@ -35,6 +35,9 @@ const CartPage = ({ match, location, history }) => {
 
   const checkoutHandler = () => {
     history.push('/confirm')
+  }
+  const shopMore = () => {
+    history.push('/')
   }
 
   return (
@@ -106,21 +109,34 @@ const CartPage = ({ match, location, history }) => {
                     <small>- £{(totalBeansQty.qty / 3 * 2 - totalBeansQty.qty * 0.5 + totalColaQty.qty * 0.7 - totalColaQty.qty / 2 * 1).toFixed(2)}</small>
                   </h5>
                 </>
-              }
-              {totalColaQty.qty >= 2 && totalBeansQty.qty >= 3 &&
-                <>
-                  <hr />
-                  <h5>Total To Pay: <span></span>
-                    <small> £{(basketItems.reduce((acc, item) => acc + item.qty * item.price, 0) - (totalBeansQty.qty / 3 * 2 - totalBeansQty.qty * 0.5 + totalColaQty.qty * 0.7 - totalColaQty.qty / 2 * 1)).toFixed(2)}</small>
-                  </h5>
-                </>
 
               }
+              <hr />
+              {totalColaQty.qty >= 2 && totalBeansQty.qty >= 3 ? (
+                <h5>Total To Pay:
+                  <small> £{(basketItems.reduce((acc, item) => acc + item.qty * item.price, 0) - (totalBeansQty.qty / 3 * 2 - totalBeansQty.qty * 0.5 + totalColaQty.qty * 0.7 - totalColaQty.qty / 2 * 1) || 0).toFixed(2)}</small>
+                </h5>
+              ) : totalBeansQty.qty && totalBeansQty.qty >= 3 ? (
+                <h5>Total To Pay:
+                  <small> £{(basketItems.reduce((acc, item) => acc + item.qty * item.price, 0) - (totalBeansQty.qty / 3 * 2 - totalBeansQty.qty * 0.5) || 0).toFixed(2)}</small>
+                </h5>
+              )
+                : totalColaQty.qty && totalColaQty.qty >= 2 ? (
+                  <h5>Total To Pay:
+                    <small> £{(basketItems.reduce((acc, item) => acc + item.qty * item.price, 0) - (totalColaQty.qty * 0.7 - totalColaQty.qty / 2 * 1) || 0).toFixed(2)}</small>
+                  </h5>
+                ) : (
+                  <h6>
+                    Total Price:  £{basketItems.reduce((acc, item) => acc + item.qty * item.price, 0).toFixed(2)}
+                  </h6>
+                )
+              }
+
             </ListGroup.Item>
             <ListGroup.Item>
               <Button
                 type="button"
-                className="btn-block me-5"
+                className="btn-block btn-success me-1"
                 onClick={checkoutHandler}
               >
                 Confirm
@@ -128,10 +144,17 @@ const CartPage = ({ match, location, history }) => {
 
               <Button
                 type="button"
-                className="btn-block btn-secondary ms-5"
+                className="btn-block btn-secondary ms-1"
                 onClick={clearBasketHandler}
               >
                 Clear Basket
+              </Button>
+              <Button
+                type="button"
+                className="btn-block  ms-1"
+                onClick={shopMore}
+              >
+                Add More
               </Button>
             </ListGroup.Item>
           </ListGroup>
